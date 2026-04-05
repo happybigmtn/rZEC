@@ -1,0 +1,49 @@
+services:
+  zebra:
+    container_name: rzec-zebra
+    image: zfnd/zebra:latest
+    restart: unless-stopped
+    volumes:
+      - ./runtime/zebrad.toml:/home/zebra/.config/zebrad.toml:ro
+      - ./runtime/zebra-cache:/home/zebra/.cache/zebra
+    ports:
+      - "${RZEC_CHAIN_RPC_BIND_HOST:-127.0.0.1}:18232:18232"
+      - "${RZEC_CHAIN_P2P_BIND_HOST:-0.0.0.0}:18233:18233"
+    healthcheck:
+      test: ["CMD", "test", "-f", "/home/zebra/.cache/zebra/zebraCookie"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  lightwalletd:
+    container_name: rzec-lightwalletd
+    image: electriccoinco/lightwalletd:latest
+    restart: unless-stopped
+    depends_on:
+      zebra:
+        condition: service_healthy
+    volumes:
+      - ./runtime/lightwalletd/zcash.conf:/srv/lightwalletd/conf/zcash.conf:ro
+      - ./runtime/lightwalletd/db:/var/lib/lightwalletd
+    command:
+      - --grpc-bind-addr
+      - 0.0.0.0:9067
+      - --http-bind-addr
+      - 0.0.0.0:9068
+      - --no-tls-very-insecure
+      - --zcash-conf-path
+      - /srv/lightwalletd/conf/zcash.conf
+      - --data-dir
+      - /var/lib/lightwalletd
+      - --log-file
+      - /dev/stdout
+    ports:
+      - "${RZEC_CHAIN_LIGHTWALLETD_GRPC_BIND_HOST:-0.0.0.0}:9067:9067"
+      - "${RZEC_CHAIN_LIGHTWALLETD_HTTP_BIND_HOST:-0.0.0.0}:9068:9068"
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider -q http://localhost:9068/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s

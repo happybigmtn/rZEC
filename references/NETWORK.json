@@ -1,0 +1,35 @@
+{
+  "id": "rzec",
+  "display_name": "rZEC",
+  "network_name": "ZendContaboRzec",
+  "zingo_chain": "testnet",
+  "lightwalletd_network": "testnet",
+  "proof_of_work": "required",
+  "genesis_hash": "fa1b34031a2d446cb9b266a9c8b8faeb1f6a8ec512cb5ba5ad8f98fb6b57951c",
+  "network_magic": [90, 69, 78, 68],
+  "activation_heights": {
+    "NU6": 1
+  },
+  "target_difficulty_limit": "0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f",
+  "ports": {
+    "zebra_rpc": 18232,
+    "zebra_p2p": 18233,
+    "lightwalletd_grpc": 9067,
+    "lightwalletd_http": 9068,
+    "stratum": 1234,
+    "snomp_cli": 17117,
+    "snomp_web": 8080
+  },
+  "bootstrap_peers": [
+    "95.111.227.14:18233",
+    "95.111.229.108:18233",
+    "161.97.83.147:18233",
+    "161.97.97.83:18233"
+  ],
+  "public_lightwalletd_endpoints": [
+    "http://95.111.227.14:9067",
+    "http://95.111.229.108:9067",
+    "http://161.97.83.147:9067",
+    "http://161.97.97.83:9067"
+  ]
+}

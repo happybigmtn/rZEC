@@ -1,0 +1,29 @@
+[mining]
+miner_address = "__MINER_ADDRESS__"
+
+[network]
+network = "Testnet"
+listen_addr = "0.0.0.0:18233"
+initial_testnet_peers = ["95.111.227.14:18233", "95.111.229.108:18233", "161.97.83.147:18233", "161.97.97.83:18233"]
+
+[network.testnet_parameters]
+network_name = "ZendContaboRzec"
+network_magic = [90, 69, 78, 68]
+slow_start_interval = 0
+target_difficulty_limit = "0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f"
+disable_pow = false
+
+[network.testnet_parameters.activation_heights]
+NU6 = 1
+
+[rpc]
+listen_addr = "0.0.0.0:18232"
+cookie_dir = "/home/zebra/.cache/zebra"
+enable_cookie_auth = true
+
+[state]
+cache_dir = "/home/zebra/.cache/zebra"
+ephemeral = false
+
+[mempool]
+debug_enable_at_height = 0
