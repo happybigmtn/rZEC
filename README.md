@@ -49,7 +49,7 @@ sudo ufw allow 1234/tcp
 From a pinned GitHub release bundle:
 
 ```bash
-./install.sh v0.1.0 --miner-address YOUR_RZEC_TRANSPARENT_ADDRESS --enable-node --enable-miner
+./install.sh vX.Y.Z --miner-address YOUR_RZEC_TRANSPARENT_ADDRESS --enable-node --enable-miner
 ```
 
 That installs:
@@ -90,11 +90,11 @@ That file is ignored by git on purpose.
 Build one release bundle from the current repo state:
 
 ```bash
-./scripts/build-release.sh --tag v0.1.0
+./scripts/build-release.sh --tag vX.Y.Z
 ```
 
 Build the same release from a fresh tagged checkout:
 
 ```bash
-./scripts/build_from_tag.sh v0.1.0
+./scripts/build_from_tag.sh vX.Y.Z
 ```

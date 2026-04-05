@@ -10,6 +10,7 @@ ENABLE_MINER=0
 ENABLE_NOW=0
 RELEASE_TAG=""
 RELEASE_REPO="${RZEC_RELEASE_REPO:-happybigmtn/rZEC}"
+RELEASE_TMP_BASE="${RZEC_RELEASE_TMP_BASE:-$ROOT_DIR/.tmp/install}"
 
 usage() {
   cat <<'EOF'
@@ -68,11 +69,13 @@ install_from_release() {
   shift
 
   local platform asset_name base_url tmp_dir tarball sums extracted_root
+  tmp_dir=""
   platform="$(detect_platform)"
   asset_name="rzec-${tag}-${platform}.tar.gz"
   base_url="${RZEC_RELEASE_DOWNLOAD_BASE:-https://github.com/${RELEASE_REPO}/releases/download/${tag}}"
-  tmp_dir="$(mktemp -d)"
-  trap 'rm -rf "$tmp_dir"' EXIT
+  mkdir -p "$RELEASE_TMP_BASE"
+  tmp_dir="$(mktemp -d "$RELEASE_TMP_BASE/release.XXXXXX")"
+  trap '[[ -n "${tmp_dir:-}" ]] && rm -rf "$tmp_dir"' EXIT
 
   tarball="$tmp_dir/$asset_name"
   sums="$tmp_dir/SHA256SUMS"

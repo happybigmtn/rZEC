@@ -16,10 +16,10 @@ Those pins live in `references/UPSTREAM.json`.
 ## Cut a release
 
 ```bash
-./scripts/build-release.sh --tag v0.1.0
-git tag v0.1.0
+./scripts/build-release.sh --tag vX.Y.Z
+git tag vX.Y.Z
 git push origin main --tags
-gh release create v0.1.0 dist/rzec-v0.1.0-linux-x86_64.tar.gz dist/SHA256SUMS manifests/manifest-v0.1.0.json reports/verification-v0.1.0.json
+gh release create vX.Y.Z dist/rzec-vX.Y.Z-linux-x86_64.tar.gz dist/SHA256SUMS manifests/manifest-vX.Y.Z.json reports/verification-vX.Y.Z.json
 ```
 
 The build flow:
@@ -32,7 +32,7 @@ The build flow:
 ## Rebuild from a release tag
 
 ```bash
-./scripts/build_from_tag.sh v0.1.0
+./scripts/build_from_tag.sh vX.Y.Z
 ```
 
 That clones the tagged repo into a disposable worktree and reruns the same

@@ -1,0 +1,42 @@
+{
+  "release_tag": "v0.1.1",
+  "status": "PASS",
+  "timestamp": "2026-04-05T02:15:22Z",
+  "lock_file": "references/UPSTREAM.json",
+  "checks": {
+    "zebra_release": {
+      "repo": "https://github.com/ZcashFoundation/zebra",
+      "tag": "v4.3.0",
+      "html_url": "https://github.com/ZcashFoundation/zebra/releases/tag/v4.3.0",
+      "published_at": "2026-03-25T22:49:05Z"
+    },
+    "zebra_image": {
+      "repository": "zfnd/zebra",
+      "tag": "4.3.0",
+      "digest": "sha256:539dcfffc0667d6c2f23ced40f575fdbd675cb3a20c45a867b94cd99919d5ccb",
+      "last_updated": "2026-03-25T22:51:45.241123Z"
+    },
+    "lightwalletd_release": {
+      "repo": "https://github.com/zcash/lightwalletd",
+      "tag": "v0.4.18",
+      "html_url": "https://github.com/zcash/lightwalletd/releases/tag/v0.4.18",
+      "published_at": "2025-06-01T16:25:11Z"
+    },
+    "lightwalletd_image": {
+      "repository": "electriccoinco/lightwalletd",
+      "tag": "v0.4.18",
+      "digest": "sha256:0267fabc66c9b62ee0b5143a47e8c2c0969c1b759a990cba44d00a92089be07d",
+      "last_updated": "2025-06-01T16:28:34.691017Z"
+    },
+    "snomp_branch": {
+      "repo": "https://github.com/ZcashFoundation/s-nomp",
+      "branch": "zebra-mining",
+      "commit": "49fd89bf32fac6fe2440143d16622650e061e5a0"
+    },
+    "nheqminer_branch": {
+      "repo": "https://github.com/ZcashFoundation/nheqminer",
+      "branch": "zebra-mining",
+      "commit": "72e320aacaa49c9e170be62d28a4189957767d3c"
+    }
+  }
+}

@@ -5,4 +5,5 @@ private/*
 !private/README.md
 runtime/
 mining/
+.cache/
 .tmp/

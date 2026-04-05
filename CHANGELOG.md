@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.1
+
+- Fixed `install.sh vX.Y.Z` release-bundle staging to avoid `/tmp` quota failures.
+- Kept release-bundle cleanup safe under `set -u`.
+
 ## 0.1.0
 
 - Added the first public-safe `rZEC` runtime repo.
