@@ -13,11 +13,27 @@ ENABLE_NOW=0
 REMOVE_SERVICE=0
 MINE_ADDRESS="${RZEC_MINER_ADDRESS:-}"
 THREADS="${RZEC_MINER_THREADS:-}"
-NODE_VERSION="10.24.1"
-SNOMP_REPO="https://github.com/ZcashFoundation/s-nomp"
-SNOMP_BRANCH="zebra-mining"
-NHEQMINER_REPO="https://github.com/ZcashFoundation/nheqminer"
-NHEQMINER_BRANCH="zebra-mining"
+eval "$(
+  python3 - "$ROOT_DIR/references/UPSTREAM.json" <<'PY'
+import json
+import shlex
+import sys
+
+payload = json.loads(open(sys.argv[1], encoding="utf-8").read())
+values = {
+    "NODE_VERSION": payload["toolchain"]["nodejs"],
+    "NVM_VERSION": payload["toolchain"]["nvm"],
+    "SNOMP_REPO": payload["miner_stack"]["snomp"]["repo"],
+    "SNOMP_BRANCH": payload["miner_stack"]["snomp"]["branch"],
+    "SNOMP_COMMIT": payload["miner_stack"]["snomp"]["commit"],
+    "NHEQMINER_REPO": payload["miner_stack"]["nheqminer"]["repo"],
+    "NHEQMINER_BRANCH": payload["miner_stack"]["nheqminer"]["branch"],
+    "NHEQMINER_COMMIT": payload["miner_stack"]["nheqminer"]["commit"],
+}
+for key, value in values.items():
+    print(f"{key}={shlex.quote(str(value))}")
+PY
+)"
 
 usage() {
   cat <<'EOF'
@@ -87,7 +103,7 @@ systemctl start redis-server >/dev/null 2>&1 || service redis-server start
 
 export NVM_DIR="${NVM_DIR:-/root/.nvm}"
 if [[ ! -s "$NVM_DIR/nvm.sh" ]]; then
-  curl -4 -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+  curl -4 -fsSL "https://raw.githubusercontent.com/nvm-sh/nvm/${NVM_VERSION}/install.sh" | bash
 fi
 . "$NVM_DIR/nvm.sh"
 if ! nvm ls "$NODE_VERSION" >/dev/null 2>&1; then
@@ -104,7 +120,7 @@ if [[ ! -d "$INSTALL_ROOT/mining/nheqminer/.git" ]]; then
 fi
 
 git -C "$INSTALL_ROOT/mining/s-nomp" fetch origin >/dev/null 2>&1 || true
-git -C "$INSTALL_ROOT/mining/s-nomp" checkout "$SNOMP_BRANCH"
+git -C "$INSTALL_ROOT/mining/s-nomp" checkout "$SNOMP_COMMIT"
 rm -rf "$INSTALL_ROOT/mining/s-nomp/node_modules"
 cp "$ROOT_DIR/templates/snomp.config.json" "$INSTALL_ROOT/mining/s-nomp/config.json"
 (
@@ -113,7 +129,7 @@ cp "$ROOT_DIR/templates/snomp.config.json" "$INSTALL_ROOT/mining/s-nomp/config.j
 )
 
 git -C "$INSTALL_ROOT/mining/nheqminer" fetch origin >/dev/null 2>&1 || true
-git -C "$INSTALL_ROOT/mining/nheqminer" checkout "$NHEQMINER_BRANCH"
+git -C "$INSTALL_ROOT/mining/nheqminer" checkout "$NHEQMINER_COMMIT"
 mkdir -p "$INSTALL_ROOT/mining/nheqminer/build"
 (
   cd "$INSTALL_ROOT/mining/nheqminer/build"

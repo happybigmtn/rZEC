@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "release_tag",
+    "verification_report",
+    "timestamp",
+    "artifacts"
+  ],
+  "properties": {
+    "release_tag": { "type": "string" },
+    "verification_report": { "type": "string" },
+    "timestamp": { "type": "string" },
+    "upstream_lock": { "type": "string" },
+    "artifacts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["path", "sha256"],
+        "properties": {
+          "path": { "type": "string" },
+          "sha256": { "type": "string" }
+        }
+      }
+    }
+  }
+}

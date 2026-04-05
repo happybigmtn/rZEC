@@ -46,20 +46,31 @@ sudo ufw allow 9068/tcp
 sudo ufw allow 1234/tcp
 ```
 
+From a pinned GitHub release bundle:
+
+```bash
+./install.sh v0.1.0 --miner-address YOUR_RZEC_TRANSPARENT_ADDRESS --enable-node --enable-miner
+```
+
 That installs:
 - `rzec-runtime.service`
 - `rzec-miner.service`
 - wrappers in `/usr/local/bin/`
 - runtime root under `/opt/rzec`
 - config under `/etc/rzec`
+- pinned upstream refs from `references/UPSTREAM.json`
 
 ## Layout
 
 - `references/NETWORK.json` — public chain contract and seed metadata
+- `references/UPSTREAM.json` — pinned upstream image digests and mining refs
 - `profiles/rzec/` — public profile metadata plus genesis
 - `docs/public-node.md` — public-node and public-miner guide
+- `docs/release-process.md` — release and build-from-tag guide
 - `scripts/` — standalone install, doctor, and mining helpers
 - `private/` — ignored local-only fleet inventory and operator data
+- `manifests/` — generated release manifests
+- `reports/` — generated upstream verification reports
 
 ## Private Local Data
 
@@ -73,3 +84,17 @@ private/contabo-fleet.json
 ```
 
 That file is ignored by git on purpose.
+
+## Pinned Release Flow
+
+Build one release bundle from the current repo state:
+
+```bash
+./scripts/build-release.sh --tag v0.1.0
+```
+
+Build the same release from a fresh tagged checkout:
+
+```bash
+./scripts/build_from_tag.sh v0.1.0
+```

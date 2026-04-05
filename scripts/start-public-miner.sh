@@ -6,7 +6,15 @@ SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
 ROOT_DIR="$(cd "$(dirname "$SCRIPT_PATH")/.." && pwd)"
 MINE_ADDRESS="${RZEC_MINER_ADDRESS:-}"
 THREADS="${RZEC_MINER_THREADS:-$(nproc 2>/dev/null || echo 1)}"
-NODE_VERSION="10.24.1"
+NODE_VERSION="$(
+  python3 - "$ROOT_DIR/references/UPSTREAM.json" <<'PY'
+import json
+import sys
+
+payload = json.loads(open(sys.argv[1], encoding="utf-8").read())
+print(payload["toolchain"]["nodejs"])
+PY
+)"
 SNOMP_PID=""
 MINER_PID=""
 

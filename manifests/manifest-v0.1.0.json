@@ -1,0 +1,108 @@
+{
+  "release_tag": "v0.1.0",
+  "upstream_lock": "./references/UPSTREAM.json",
+  "verification_report": "./verification-v0.1.0.json",
+  "timestamp": "2026-04-05T02:12:50Z",
+  "artifacts": [
+    {
+      "path": "./contrib/init/rzec.env.example",
+      "sha256": "ec463acced31c45e94dc15640c78705f58e1a1d5c9e1a8be65d2b54444858d8a"
+    },
+    {
+      "path": "./docker-compose.yml",
+      "sha256": "7d9e06120bbb2d6fb4f94ab2c421cebcb148df691cef5fc1d8274d8b39f10340"
+    },
+    {
+      "path": "./docs/public-node.md",
+      "sha256": "26784ccacb7385d8d21cd0f9942f6f68a0cf9765e064190ce136e80fc6f2ffb5"
+    },
+    {
+      "path": "./docs/release-process.md",
+      "sha256": "aae97e909fc20cab6c042cfef6e851c7f4d3d1b65d19f71c07c2d78708ec1893"
+    },
+    {
+      "path": "./install.sh",
+      "sha256": "46fcd729a19a7e7204183bd84daf6c411d24484c8a546e8ba4f5381d7866103a"
+    },
+    {
+      "path": "./profiles/rzec/genesis.hex",
+      "sha256": "2c5ebc01df3b17854fbb857c436d6d0b43b91819814df55f40d629e145b4c043"
+    },
+    {
+      "path": "./profiles/rzec/profile.env",
+      "sha256": "830cfa162b8391e0078b33b3c1a7181b050d2f9e6ab717d001dc4984b6570e68"
+    },
+    {
+      "path": "./profiles/rzec/zebrad.toml.example",
+      "sha256": "a1a10ecc8d851a2b7c5b844be89aaff7ede92c2e6a4844f35f6636c6b0c8b15d"
+    },
+    {
+      "path": "./references/GENESIS.hex",
+      "sha256": "2c5ebc01df3b17854fbb857c436d6d0b43b91819814df55f40d629e145b4c043"
+    },
+    {
+      "path": "./references/NETWORK.json",
+      "sha256": "54707511fbfe1380b831a38ac89b0bebd30406422455d1536b51de738513ae3a"
+    },
+    {
+      "path": "./references/UPSTREAM.json",
+      "sha256": "b1ea6002fd5f38cb8420af0c4b3a584825694f221312c9e1dab08de254f9ade3"
+    },
+    {
+      "path": "./scripts/build-release.sh",
+      "sha256": "8173fe2954babbc88dc59169e07ed8873e2c7cc76c0a15642432346e8e7898ec"
+    },
+    {
+      "path": "./scripts/build_from_tag.sh",
+      "sha256": "cc995cd5b3714d47b8941bd64832b6a2dfcb125570b907ca8ba21e9479c6b8cb"
+    },
+    {
+      "path": "./scripts/doctor.sh",
+      "sha256": "324a41823baec2a47180aa3ffc76a6c2f2d0da57fe23353f7b3c5523e76a540e"
+    },
+    {
+      "path": "./scripts/install-public-miner.sh",
+      "sha256": "b6d28270635262291999154c5574b41be0c286a453530afe0cb65ff323455d5c"
+    },
+    {
+      "path": "./scripts/install-public-node.sh",
+      "sha256": "aa4cb7241f6d6c4566bb6ccef71e681d279c6f2c14cbcd8934427cc82367d893"
+    },
+    {
+      "path": "./scripts/prepare-lightwalletd-conf.sh",
+      "sha256": "07bb809f3b3873af2427532d8649ba668f98b0c15420cd46d74f8e9a1e44b5bb"
+    },
+    {
+      "path": "./scripts/render-runtime.py",
+      "sha256": "ee3477d8851ac83d962d7f47144bc3f27074529dc95125804e3ff8d652abeff6"
+    },
+    {
+      "path": "./scripts/start-public-miner.sh",
+      "sha256": "e9ea5a2599a6c30feb21bc1bdcd44020017c4c31e8ced7d8dd10a3d845abf492"
+    },
+    {
+      "path": "./scripts/start-runtime.sh",
+      "sha256": "e1fd970a2a9e406c6953a9cb7eadbbd68c95a8dabf2fc1939491f82e30284d87"
+    },
+    {
+      "path": "./scripts/validate-manifest.sh",
+      "sha256": "a07340e3c1fbaa8ae9e1b5232905796ab8c28c96c8da118bb48aa284d7cfa2dd"
+    },
+    {
+      "path": "./scripts/verify-upstream-lock.py",
+      "sha256": "149cadf2f2de94e4850047132785de334137636c71f06a73d13fca28893c3e95"
+    },
+    {
+      "path": "./templates/pool.config.template.json",
+      "sha256": "22d672a901070e183a392b917012bcff04c1c352e6b3dc60e7d1dadd96d0bfb1"
+    },
+    {
+      "path": "./templates/snomp.config.json",
+      "sha256": "12916aa55798d8e22858c7cb1b59fd1be882275c7bf24246207b1c250fd12466"
+    },
+    {
+      "path": "./verification-v0.1.0.json",
+      "sha256": "fa8452b9ccf86f398c6258f2406a691627d05442ebacfa04418eed128313e4fa"
+    }
+  ]
+}

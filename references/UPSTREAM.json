@@ -1,0 +1,34 @@
+{
+  "zebra": {
+    "source_repo": "https://github.com/ZcashFoundation/zebra",
+    "source_release_tag": "v4.3.0",
+    "docker_repository": "zfnd/zebra",
+    "docker_tag": "4.3.0",
+    "docker_digest": "sha256:539dcfffc0667d6c2f23ced40f575fdbd675cb3a20c45a867b94cd99919d5ccb",
+    "image": "zfnd/zebra:4.3.0@sha256:539dcfffc0667d6c2f23ced40f575fdbd675cb3a20c45a867b94cd99919d5ccb"
+  },
+  "lightwalletd": {
+    "source_repo": "https://github.com/zcash/lightwalletd",
+    "source_release_tag": "v0.4.18",
+    "docker_repository": "electriccoinco/lightwalletd",
+    "docker_tag": "v0.4.18",
+    "docker_digest": "sha256:0267fabc66c9b62ee0b5143a47e8c2c0969c1b759a990cba44d00a92089be07d",
+    "image": "electriccoinco/lightwalletd:v0.4.18@sha256:0267fabc66c9b62ee0b5143a47e8c2c0969c1b759a990cba44d00a92089be07d"
+  },
+  "miner_stack": {
+    "snomp": {
+      "repo": "https://github.com/ZcashFoundation/s-nomp",
+      "branch": "zebra-mining",
+      "commit": "49fd89bf32fac6fe2440143d16622650e061e5a0"
+    },
+    "nheqminer": {
+      "repo": "https://github.com/ZcashFoundation/nheqminer",
+      "branch": "zebra-mining",
+      "commit": "72e320aacaa49c9e170be62d28a4189957767d3c"
+    }
+  },
+  "toolchain": {
+    "nvm": "v0.39.7",
+    "nodejs": "10.24.1"
+  }
+}

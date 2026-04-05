@@ -10,6 +10,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 NETWORK_PATH = REPO_ROOT / "references" / "NETWORK.json"
+UPSTREAM_PATH = REPO_ROOT / "references" / "UPSTREAM.json"
 GENESIS_PATH = REPO_ROOT / "profiles" / "rzec" / "genesis.hex"
 
 
@@ -17,6 +18,13 @@ def _load_network() -> dict:
     payload = json.loads(NETWORK_PATH.read_text(encoding="utf-8"))
     if not isinstance(payload, dict):
         raise RuntimeError(f"Expected JSON object at {NETWORK_PATH}")
+    return payload
+
+
+def _load_upstream() -> dict:
+    payload = json.loads(UPSTREAM_PATH.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise RuntimeError(f"Expected JSON object at {UPSTREAM_PATH}")
     return payload
 
 
@@ -82,6 +90,7 @@ def main() -> None:
     args = parser.parse_args()
 
     network = _load_network()
+    upstream = _load_upstream()
     output_root = Path(args.output_root).expanduser().resolve()
     runtime_dir = output_root / "runtime"
     lightwalletd_dir = runtime_dir / "lightwalletd"
@@ -97,6 +106,8 @@ def main() -> None:
                 "RZEC_CHAIN_P2P_BIND_HOST=0.0.0.0",
                 "RZEC_CHAIN_LIGHTWALLETD_GRPC_BIND_HOST=0.0.0.0",
                 "RZEC_CHAIN_LIGHTWALLETD_HTTP_BIND_HOST=0.0.0.0",
+                f'RZEC_ZEBRA_IMAGE={upstream["zebra"]["image"]}',
+                f'RZEC_LIGHTWALLETD_IMAGE={upstream["lightwalletd"]["image"]}',
                 "",
             ]
         ),

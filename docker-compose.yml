@@ -1,7 +1,7 @@
 services:
   zebra:
     container_name: rzec-zebra
-    image: zfnd/zebra:latest
+    image: ${RZEC_ZEBRA_IMAGE}
     restart: unless-stopped
     volumes:
       - ./runtime/zebrad.toml:/home/zebra/.config/zebrad.toml:ro
@@ -18,7 +18,7 @@ services:
 
   lightwalletd:
     container_name: rzec-lightwalletd
-    image: electriccoinco/lightwalletd:latest
+    image: ${RZEC_LIGHTWALLETD_IMAGE}
     restart: unless-stopped
     depends_on:
       zebra:
