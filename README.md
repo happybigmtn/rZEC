@@ -17,7 +17,7 @@ This repo is intentionally public-safe:
 - Zingo chain family: `testnet`
 - lightwalletd network family: `testnet`
 - Zebra P2P: `18233/TCP`
-- Zebra RPC: `18232/TCP` and keep it local-only
+- Zebra RPC: `18232/TCP` and keep its host bind local-only
 - lightwalletd gRPC: `9067/TCP`
 - lightwalletd HTTP: `9068/TCP`
 - stratum: `1234/TCP`
@@ -39,7 +39,7 @@ Current public lightwalletd endpoints:
 From a verified checkout on Ubuntu:
 
 ```bash
-sudo ./install.sh --miner-address YOUR_RZEC_TRANSPARENT_ADDRESS --enable-node --enable-miner
+sudo ./scripts/public-apply.sh --address YOUR_RZEC_TRANSPARENT_ADDRESS --enable-now
 sudo ufw allow 18233/tcp
 sudo ufw allow 9067/tcp
 sudo ufw allow 9068/tcp
@@ -55,10 +55,27 @@ From a pinned GitHub release bundle:
 That installs:
 - `rzec-runtime.service`
 - `rzec-miner.service`
-- wrappers in `/usr/local/bin/`
+- wrappers in `/usr/local/bin/`, including `rzec-public-apply`
 - runtime root under `/opt/rzec`
 - config under `/etc/rzec`
 - pinned upstream refs from `references/UPSTREAM.json`
+
+## CPU Mining
+
+For this Equihash-based fork, the reference CPU miner is `nheqminer` built with
+the `tromp` CPU solver. `cpuminer-opt` is a good default for `rBTC` and other
+`sha256d` chains, but it is not the right miner for `rZEC`.
+
+From a repo checkout:
+
+```bash
+./scripts/ensure_cpu_miner.sh
+./scripts/start_cpu_miner.sh --address YOUR_RZEC_TRANSPARENT_ADDRESS --pool 127.0.0.1:1234
+```
+
+Installed public nodes also expose:
+- `rzec-ensure-cpu-miner`
+- `rzec-start-cpu-miner`
 
 ## Layout
 
@@ -97,4 +114,17 @@ Build the same release from a fresh tagged checkout:
 
 ```bash
 ./scripts/build_from_tag.sh vX.Y.Z
+```
+
+Verify a node plus miner locally:
+
+```bash
+rzec-doctor --root /opt/rzec --expect-miner
+python3 ./scripts/fleet-status.py
+```
+
+Promote an existing legacy `/opt/zend` host onto the public runtime:
+
+```bash
+sudo ./scripts/migrate-legacy-host.sh
 ```

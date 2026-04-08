@@ -37,7 +37,7 @@ PY
 
 usage() {
   cat <<'EOF'
-Install or remove a persistent rZEC public miner service.
+Install or remove a persistent rZEC CPU-miner service.
 
 Usage:
   sudo ./scripts/install-public-miner.sh --address TM_ADDRESS [--threads N] [--enable-now]
@@ -47,6 +47,27 @@ EOF
 
 info() { printf '[INFO] %s\n' "$1"; }
 error() { printf '[ERROR] %s\n' "$1" >&2; exit 1; }
+
+cpu_count() {
+  nproc 2>/dev/null || getconf _NPROCESSORS_ONLN 2>/dev/null || sysctl -n hw.logicalcpu 2>/dev/null || echo 1
+}
+
+default_threads() {
+  local cores percent threads
+  cores="$(cpu_count)"
+  percent="${RZEC_MINER_CPU_PERCENT:-75}"
+  if (( percent < 1 )); then
+    percent=1
+  fi
+  if (( percent > 100 )); then
+    percent=100
+  fi
+  threads=$(( cores * percent / 100 ))
+  if (( threads < 1 )); then
+    threads=1
+  fi
+  printf '%s\n' "$threads"
+}
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -93,7 +114,7 @@ fi
 [[ -d "$INSTALL_ROOT" ]] || error "Install the public node first at $INSTALL_ROOT"
 [[ -n "$MINE_ADDRESS" ]] || error "--address is required"
 if [[ -z "$THREADS" ]]; then
-  THREADS="$(nproc 2>/dev/null || echo 1)"
+  THREADS="$(default_threads)"
 fi
 
 apt-get update
@@ -115,9 +136,6 @@ mkdir -p "$INSTALL_ROOT/mining"
 if [[ ! -d "$INSTALL_ROOT/mining/s-nomp/.git" ]]; then
   git clone "$SNOMP_REPO" "$INSTALL_ROOT/mining/s-nomp"
 fi
-if [[ ! -d "$INSTALL_ROOT/mining/nheqminer/.git" ]]; then
-  git clone "$NHEQMINER_REPO" "$INSTALL_ROOT/mining/nheqminer"
-fi
 
 git -C "$INSTALL_ROOT/mining/s-nomp" fetch origin >/dev/null 2>&1 || true
 git -C "$INSTALL_ROOT/mining/s-nomp" checkout "$SNOMP_COMMIT"
@@ -127,15 +145,9 @@ cp "$ROOT_DIR/templates/snomp.config.json" "$INSTALL_ROOT/mining/s-nomp/config.j
   cd "$INSTALL_ROOT/mining/s-nomp"
   npm ci
 )
+python3 "$ROOT_DIR/scripts/patch-mining-stack.py" --root "$INSTALL_ROOT"
 
-git -C "$INSTALL_ROOT/mining/nheqminer" fetch origin >/dev/null 2>&1 || true
-git -C "$INSTALL_ROOT/mining/nheqminer" checkout "$NHEQMINER_COMMIT"
-mkdir -p "$INSTALL_ROOT/mining/nheqminer/build"
-(
-  cd "$INSTALL_ROOT/mining/nheqminer/build"
-  cmake -DUSE_CUDA_DJEZO=OFF -DUSE_CPU_XENONCAT=OFF -DUSE_CPU_TROMP=ON ..
-  make -j"$(nproc)"
-)
+"$ROOT_DIR/scripts/ensure_cpu_miner.sh" --root "$INSTALL_ROOT"
 
 install -d -m 0755 "$CONFIG_DIR" "$SERVICE_DIR"
 cat > "$CONFIG_DIR/rzec-miner.env" <<EOF
@@ -146,23 +158,29 @@ chmod 640 "$CONFIG_DIR/rzec-miner.env"
 
 cat > "$SERVICE_DIR/$SERVICE_NAME" <<EOF
 [Unit]
-Description=rZEC public miner
+Description=rZEC CPU miner
 After=rzec-runtime.service network-online.target redis-server.service
 Requires=rzec-runtime.service
 
 [Service]
 Type=simple
 WorkingDirectory=$INSTALL_ROOT
+Environment=HOME=/root
+Environment=USER=root
+Environment=NVM_DIR=/root/.nvm
 EnvironmentFile=$CONFIG_DIR/rzec-miner.env
 ExecStart=$INSTALL_ROOT/scripts/start-public-miner.sh --root $INSTALL_ROOT --address \${RZEC_MINER_ADDRESS} --threads \${RZEC_MINER_THREADS}
 Restart=always
 RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
 
 [Install]
 WantedBy=multi-user.target
 EOF
 
 chmod 755 "$INSTALL_ROOT/scripts/"*.sh
+chmod 755 "$INSTALL_ROOT/scripts/"*.py
 systemctl daemon-reload
 if [[ "$ENABLE_NOW" -eq 1 ]]; then
   systemctl enable --now "$SERVICE_NAME"

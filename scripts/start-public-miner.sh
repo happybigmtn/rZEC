@@ -5,7 +5,8 @@ set -euo pipefail
 SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
 ROOT_DIR="$(cd "$(dirname "$SCRIPT_PATH")/.." && pwd)"
 MINE_ADDRESS="${RZEC_MINER_ADDRESS:-}"
-THREADS="${RZEC_MINER_THREADS:-$(nproc 2>/dev/null || echo 1)}"
+THREADS="${RZEC_MINER_THREADS:-}"
+LOG_DIR="${RZEC_LOG_DIR:-}"
 NODE_VERSION="$(
   python3 - "$ROOT_DIR/references/UPSTREAM.json" <<'PY'
 import json
@@ -20,11 +21,32 @@ MINER_PID=""
 
 usage() {
   cat <<'EOF'
-Start the public rZEC miner stack on this host.
+Start the public rZEC stratum plus CPU-miner stack on this host.
 
 Usage:
   ./scripts/start-public-miner.sh --address TM_ADDRESS [--threads N] [--root PATH]
 EOF
+}
+
+cpu_count() {
+  nproc 2>/dev/null || getconf _NPROCESSORS_ONLN 2>/dev/null || sysctl -n hw.logicalcpu 2>/dev/null || echo 1
+}
+
+default_threads() {
+  local cores percent threads
+  cores="$(cpu_count)"
+  percent="${RZEC_MINER_CPU_PERCENT:-75}"
+  if (( percent < 1 )); then
+    percent=1
+  fi
+  if (( percent > 100 )); then
+    percent=100
+  fi
+  threads=$(( cores * percent / 100 ))
+  if (( threads < 1 )); then
+    threads=1
+  fi
+  printf '%s\n' "$threads"
 }
 
 cleanup() {
@@ -66,8 +88,11 @@ while [[ $# -gt 0 ]]; do
 done
 
 [[ -n "$MINE_ADDRESS" ]] || { echo "A transparent rZEC address is required" >&2; exit 1; }
+if [[ -z "$THREADS" ]]; then
+  THREADS="$(default_threads)"
+fi
 [[ -x "$ROOT_DIR/mining/nheqminer/build/nheqminer" ]] || {
-  echo "nheqminer is not built under $ROOT_DIR/mining/nheqminer/build" >&2
+  echo "nheqminer is not built under $ROOT_DIR/mining/nheqminer/build. Run ./scripts/ensure_cpu_miner.sh --root $ROOT_DIR first." >&2
   exit 1
 }
 [[ -f "$ROOT_DIR/runtime/zebra-cache/.cookie" ]] || {
@@ -76,9 +101,20 @@ done
 }
 
 systemctl start redis-server >/dev/null 2>&1 || service redis-server start
-export NVM_DIR="${NVM_DIR:-/root/.nvm}"
+export HOME="${HOME:-/root}"
+export USER="${USER:-root}"
+export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+[[ -s "$NVM_DIR/nvm.sh" ]] || {
+  echo "nvm is not installed under $NVM_DIR" >&2
+  exit 1
+}
 . "$NVM_DIR/nvm.sh"
 nvm use "$NODE_VERSION" >/dev/null
+
+if [[ -z "$LOG_DIR" ]]; then
+  LOG_DIR="$ROOT_DIR/runtime/logs"
+fi
+mkdir -p "$LOG_DIR"
 
 python3 - "$ROOT_DIR" "$MINE_ADDRESS" <<'PY'
 import json
@@ -110,101 +146,6 @@ if stock_path.exists():
     stock_path.write_text(json.dumps(stock, indent=2) + "\n", encoding="utf-8")
 PY
 
-python3 - "$ROOT_DIR/mining/s-nomp/node_modules/stratum-pool/lib/daemon.js" <<'PY'
-import sys
-from pathlib import Path
-
-path = Path(sys.argv[1])
-text = path.read_text(encoding="utf-8")
-legacy_batch = """    function batchCmd(cmdArray, callback, timeout) {
-
-        var requestJson = [];
-
-        for (var i = 0; i < cmdArray.length; i++) {
-            requestJson.push({
-                method: cmdArray[i][0],
-                params: cmdArray[i][1],
-                id: Date.now() + Math.floor(Math.random() * 10) + i
-            });
-        }
-
-        var serializedRequest = JSON.stringify(requestJson);
-
-        performHttpRequest(instances[0], serializedRequest, function (error, result) {
-            callback(error, result);
-        }, timeout);
-    }
-"""
-patched_batch = """    function batchCmd(cmdArray, callback, timeout) {
-
-        async.mapSeries(cmdArray, function (cmd, eachCallback) {
-            var serializedRequest = JSON.stringify({
-                jsonrpc: "1.0",
-                method: cmd[0],
-                params: cmd[1],
-                id: Date.now() + Math.floor(Math.random() * 10)
-            });
-
-            performHttpRequest(instances[0], serializedRequest, function (error, result) {
-                if (result) {
-                    eachCallback(null, result);
-                    return;
-                }
-                eachCallback(null, {error: error, result: null});
-            }, timeout);
-        }, function (_, results) {
-            callback(null, results);
-        });
-    }
-"""
-updated = text.replace(legacy_batch, patched_batch)
-updated = updated.replace("jsonrpc: 1.0", "jsonrpc: \"1.0\"")
-if updated != text:
-    path.write_text(updated, encoding="utf-8")
-PY
-
-python3 - "$ROOT_DIR/mining/s-nomp/node_modules/stratum-pool/lib/blockTemplate.js" <<'PY'
-import sys
-from pathlib import Path
-
-path = Path(sys.argv[1])
-text = path.read_text(encoding="utf-8")
-marker = "    this.rpcData = rpcData;"
-assignment = "    this.rpcData.fundingstreams = this.rpcData.fundingstreams || [];"
-insert = "\n".join([
-    "    this.rpcData = rpcData;",
-    assignment,
-    "    this.rpcData.certificates = this.rpcData.certificates || [];",
-    "    this.rpcData.miner = this.rpcData.miner || 0;",
-])
-if assignment not in text and marker in text:
-    text = text.replace(marker, insert, 1)
-header_line = "        header.write(this.merkleRoot, position += 32, 32, 'hex');"
-job_param_line = "                this.merkleRoot,"
-if header_line in text:
-    text = text.replace(
-        header_line,
-        "        header.write(this.merkleRootReversed, position += 32, 32, 'hex');",
-        1,
-    )
-if job_param_line in text:
-    text = text.replace(job_param_line, "                this.merkleRootReversed,", 1)
-path.write_text(text, encoding="utf-8")
-PY
-
-python3 - "$ROOT_DIR/mining/s-nomp/node_modules/stratum-pool/lib/merkleTree.js" <<'PY'
-import sys
-from pathlib import Path
-
-path = Path(sys.argv[1])
-text = path.read_text(encoding="utf-8")
-legacy = "    hashes = [util.reverseBuffer(new Buffer(generateTxRaw, 'hex')).toString('hex')];"
-replacement = "    hashes = [generateTxRaw];"
-updated = text.replace(legacy, replacement)
-if updated != text:
-    path.write_text(updated, encoding="utf-8")
-PY
-
 pkill -f "$ROOT_DIR/mining/nheqminer/build/nheqminer" >/dev/null 2>&1 || true
 fuser -k 1234/tcp >/dev/null 2>&1 || true
 fuser -k 17117/tcp >/dev/null 2>&1 || true
@@ -212,7 +153,7 @@ fuser -k 8080/tcp >/dev/null 2>&1 || true
 sleep 1
 
 cd "$ROOT_DIR/mining/s-nomp"
-npm start >/tmp/rzec-snomp.log 2>&1 &
+npm start >"$LOG_DIR/rzec-snomp.log" 2>&1 &
 SNOMP_PID="$!"
 
 deadline=$((SECONDS + 30))
@@ -227,7 +168,7 @@ done
 "$ROOT_DIR/mining/nheqminer/build/nheqminer" \
   -l 127.0.0.1:1234 \
   -u "${MINE_ADDRESS}.$(hostname -s)" \
-  -t "$THREADS" >/tmp/rzec-nheqminer.log 2>&1 &
+  -t "$THREADS" >"$LOG_DIR/rzec-nheqminer.log" 2>&1 &
 MINER_PID="$!"
 
 wait -n "$SNOMP_PID" "$MINER_PID"

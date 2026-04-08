@@ -56,7 +56,16 @@ done
 [[ -n "$MINER_ADDRESS" ]] || error "--miner-address is required"
 
 apt-get update
-apt-get install -y curl docker.io docker-compose-plugin python3 wget
+apt-get install -y curl docker.io python3 wget
+if ! docker compose version >/dev/null 2>&1; then
+  if apt-cache show docker-compose-v2 >/dev/null 2>&1; then
+    apt-get install -y docker-compose-v2
+  elif apt-cache show docker-compose-plugin >/dev/null 2>&1; then
+    apt-get install -y docker-compose-plugin
+  else
+    error "Docker Compose v2 is not available on this host"
+  fi
+fi
 systemctl enable docker >/dev/null 2>&1 || true
 systemctl start docker >/dev/null 2>&1 || service docker start
 
@@ -100,10 +109,15 @@ WantedBy=multi-user.target
 EOF
 
 chmod 755 "$INSTALL_ROOT/scripts/"*.sh
+chmod 755 "$INSTALL_ROOT/scripts/"*.py
 chmod 755 "$INSTALL_ROOT/install.sh"
 chmod 755 "$INSTALL_ROOT/scripts/render-runtime.py"
 ln -sf "$INSTALL_ROOT/scripts/doctor.sh" "$BIN_DIR/rzec-doctor"
+ln -sf "$INSTALL_ROOT/scripts/migrate-legacy-host.sh" "$BIN_DIR/rzec-migrate-legacy-host"
+ln -sf "$INSTALL_ROOT/scripts/ensure_cpu_miner.sh" "$BIN_DIR/rzec-ensure-cpu-miner"
+ln -sf "$INSTALL_ROOT/scripts/start_cpu_miner.sh" "$BIN_DIR/rzec-start-cpu-miner"
 ln -sf "$INSTALL_ROOT/scripts/start-runtime.sh" "$BIN_DIR/rzec-start-runtime"
+ln -sf "$INSTALL_ROOT/scripts/public-apply.sh" "$BIN_DIR/rzec-public-apply"
 ln -sf "$INSTALL_ROOT/scripts/install-public-node.sh" "$BIN_DIR/rzec-install-public-node"
 ln -sf "$INSTALL_ROOT/scripts/install-public-miner.sh" "$BIN_DIR/rzec-install-public-miner"
 

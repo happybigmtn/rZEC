@@ -10,7 +10,7 @@ services:
       - "${RZEC_CHAIN_RPC_BIND_HOST:-127.0.0.1}:18232:18232"
       - "${RZEC_CHAIN_P2P_BIND_HOST:-0.0.0.0}:18233:18233"
     healthcheck:
-      test: ["CMD", "test", "-f", "/home/zebra/.cache/zebra/zebraCookie"]
+      test: ["CMD", "test", "-f", "/home/zebra/.cache/zebra/.cookie"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -42,7 +42,7 @@ services:
       - "${RZEC_CHAIN_LIGHTWALLETD_GRPC_BIND_HOST:-0.0.0.0}:9067:9067"
       - "${RZEC_CHAIN_LIGHTWALLETD_HTTP_BIND_HOST:-0.0.0.0}:9068:9068"
     healthcheck:
-      test: ["CMD-SHELL", "wget --spider -q http://localhost:9068/health || exit 1"]
+      test: ["CMD-SHELL", "wget -qO- http://localhost:9068/metrics >/dev/null || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3

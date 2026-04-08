@@ -13,8 +13,18 @@ if [[ ! -f "$COOKIE_FILE" ]]; then
   exit 1
 fi
 
+if [[ -d "$TARGET_FILE" ]]; then
+  rm -rf "$TARGET_FILE"
+fi
+
 mkdir -p "$(dirname "$TARGET_FILE")"
-IFS=':' read -r rpc_user rpc_password < "$COOKIE_FILE"
+cookie_payload="$(< "$COOKIE_FILE")"
+rpc_user="${cookie_payload%%:*}"
+rpc_password="${cookie_payload#*:}"
+if [[ -z "$rpc_user" || -z "$rpc_password" || "$rpc_user" == "$cookie_payload" ]]; then
+  echo "Error: Invalid Zebra cookie payload at $COOKIE_FILE" >&2
+  exit 1
+fi
 cat > "$TARGET_FILE" <<EOF
 rpcconnect=127.0.0.1
 rpcport=$RPC_PORT

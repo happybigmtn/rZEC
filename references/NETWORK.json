@@ -5,7 +5,7 @@
   "zingo_chain": "testnet",
   "lightwalletd_network": "testnet",
   "proof_of_work": "required",
-  "genesis_hash": "fa1b34031a2d446cb9b266a9c8b8faeb1f6a8ec512cb5ba5ad8f98fb6b57951c",
+  "genesis_hash": "05a60a92d99d85997cce3b87616c089f6124d7342af37106edc76126334a2c38",
   "network_magic": [90, 69, 78, 68],
   "activation_heights": {
     "NU6": 1
