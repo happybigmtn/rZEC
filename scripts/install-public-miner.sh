@@ -187,3 +187,4 @@ if [[ "$ENABLE_NOW" -eq 1 ]]; then
 fi
 
 info "Installed $SERVICE_NAME"
+info "Next: verify with 'rzec-doctor --root $INSTALL_ROOT --expect-miner' and inspect 'journalctl -u $SERVICE_NAME -n 100 --no-pager' if mining does not start"

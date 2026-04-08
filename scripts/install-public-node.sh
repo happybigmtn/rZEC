@@ -127,3 +127,4 @@ if [[ "$ENABLE_NOW" -eq 1 ]]; then
 fi
 
 info "Installed rZEC public-node assets at $INSTALL_ROOT"
+info "Next: verify with 'rzec-doctor --root $INSTALL_ROOT --expect-public' and open 18233/tcp, 9067/tcp, 9068/tcp, and 1234/tcp on the host firewall"

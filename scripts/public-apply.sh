@@ -23,6 +23,23 @@ EOF
 
 error() { printf '[ERROR] %s\n' "$1" >&2; exit 1; }
 
+print_next_steps() {
+  cat <<EOF
+
+rZEC public apply complete
+
+Installed:
+- runtime root: $INSTALL_ROOT
+- config: /etc/rzec
+- services: rzec-runtime.service, rzec-miner.service
+
+Next steps:
+- verify health: rzec-doctor --root $INSTALL_ROOT --json --strict --expect-public --expect-miner
+- open inbound ports: sudo ufw allow 18233/tcp && sudo ufw allow 9067/tcp && sudo ufw allow 9068/tcp && sudo ufw allow 1234/tcp
+- inspect runtime logs: sudo journalctl -u rzec-runtime.service -u rzec-miner.service -n 100 --no-pager
+EOF
+}
+
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --address)
@@ -89,3 +106,7 @@ fi
 "$SCRIPT_DIR/install-public-node.sh" "${node_args[@]}"
 "$SCRIPT_DIR/install-public-miner.sh" "${miner_args[@]}"
 "$SCRIPT_DIR/doctor.sh" "${doctor_args[@]}"
+
+if [[ "$OUTPUT_JSON" -eq 0 ]]; then
+  print_next_steps
+fi

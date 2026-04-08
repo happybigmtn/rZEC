@@ -29,6 +29,24 @@ EOF
 
 error() { printf '[ERROR] %s\n' "$1" >&2; exit 1; }
 
+print_next_steps() {
+  cat <<EOF
+
+rZEC install complete
+
+Installed:
+- runtime root: /opt/rzec
+- config: /etc/rzec
+- wrappers: /usr/local/bin/rzec-*
+
+Next steps:
+- enable runtime now: sudo systemctl enable --now rzec-runtime.service
+- enable miner now: sudo systemctl enable --now rzec-miner.service
+- verify health: rzec-doctor --root /opt/rzec --expect-public --expect-miner
+- open inbound ports: sudo ufw allow 18233/tcp && sudo ufw allow 9067/tcp && sudo ufw allow 9068/tcp && sudo ufw allow 1234/tcp
+EOF
+}
+
 detect_platform() {
   local os arch
   os="$(uname -s | tr '[:upper:]' '[:lower:]')"
@@ -159,3 +177,5 @@ if [[ "$ENABLE_MINER" -eq 1 ]]; then
   fi
   "$ROOT_DIR/scripts/install-public-miner.sh" "${miner_args[@]}"
 fi
+
+print_next_steps
